@@ -16,7 +16,7 @@
 使用 cqhttp 时 `频道信息` 为对应的 [`频道ID`](https://github.com/Mrs4s/go-cqhttp/blob/master/docs/guild.md#%E6%94%B6%E5%88%B0%E9%A2%91%E9%81%93%E6%B6%88%E6%81%AF) ，`子频道` 信息为对应的 [`子频道ID`](https://github.com/Mrs4s/go-cqhttp/blob/master/docs/guild.md#%E6%94%B6%E5%88%B0%E9%A2%91%E9%81%93%E6%B6%88%E6%81%AF)
 
 ```
-
+{
 	"rssServer": "127.0.0.1:1200", # 填写 rss 服务器地址 默认端口为80 使用SSL时请自行添加443端口 例如 rsshub.app:443
 	"proxyServer": "127.0.0.1:1080", # 填写获取图片时使用代理的代理地址 留空则直连
 	"cycle": 60000, # 每次获取 Rss 消息的时间间隔 以毫秒为单位
@@ -39,7 +39,7 @@
 			"Retweet": true, # 是否发送转推 (推特专用)
 			"ErrorResend": true, # 发送失败时是否尝试重新发送
 			"class": "00000000000000000", # 填写 频道信息
-			"channel": "1234567" # 填写子频道信息
+			"channel": "1234567" # 填写 子频道信息
 		}]
 	}, {
 		"routing": "bilibili/user/dynamic/144630821",

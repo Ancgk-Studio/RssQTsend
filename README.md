@@ -9,7 +9,7 @@
 
 若你使用 [发行版](https://github.com/skilittle/RssQTsend/releases) 则直接运行 `start.bat` 即可
 
-若你直接 clone 此仓库请见 [使用方法(源码)](#使用方法(源码))
+若你直接 clone 此仓库请见 [使用方法(源码)](#使用方法源码)
 
 ## 配置文件描述
 

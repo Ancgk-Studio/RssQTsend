@@ -1,7 +1,7 @@
 <?php
 /*
  * RssQTsend - 主程序
- * Version 1.0.5
+ * Version 1.0.6
  *
  * Made by Ancgk Studio
  * @ Ski_little <ski@ancgk.com>
@@ -16,7 +16,7 @@ $sandMsg = new sandMsg();
 $configFile = file_get_contents($rootDir."/../config.json");
 $configArr = json_decode($configFile, true);
 $logDir = $rootDir."/../log";
-$common->log("[I] RssQTsend 当前版本:v0.0.2", $configArr["log"] ? $logDir : "");
+$common->log("[I] RssQTsend 当前版本:v0.0.3", $configArr["log"] ? $logDir : "");
 if (!empty($configArr["proxyServer"])) {
 	while (true) {
 		$res = $common->httpCurl(array("url"=>"http://".$configArr["proxyServer"]));
@@ -35,7 +35,7 @@ foreach ($configArr["targetServer"] as $key => $value) {
 }
 foreach ($remoteServer as $key => $value) {
 	while (true) {
-		$res = $common->httpCurl(array("url"=>"http://".$value));
+		$res = $common->httpCurl(array("url"=>(strstr($value, "http://") || strstr($value, "https://")) ? $value : "http://".$value));
 		if ($res["code"] == 0 && $res["message"] == "Ok") {
 			$common->log("[I] 连接远程服务器 ".$value." 成功", $configArr["log"] ? $logDir : "");
 			break;
@@ -67,7 +67,7 @@ while (true) {
 		} else {
 			$oldLink = $rootDoc->getElementsByTagName("item")->item(0)->getElementsByTagName("link")->item(0)->nodeValue;
 		}
-		$rssContent = $getMsg->getRss($configArr["rssServer"], $value["routing"], $value["limitAmount"]);
+		$rssContent = $getMsg->getRss($configArr["rssServer"], $configArr["rssProxy"] == true && !empty($configArr["proxyServer"]) ? $configArr["proxyServer"] : false, $value["routing"], !empty($value["limitAmount"]) ? $value["limitAmount"] : false);
 		if ($rssContent === false || empty($rssContent)) {
 			$common->log("[W] 获取 ".$routingName." 的Rss订阅内容失败", $configArr["log"] ? $logDir : "");
 		} elseif (!empty($rssContent)) {
@@ -116,27 +116,34 @@ while (true) {
 					$mediaType = "null";
 					foreach ($mediaUrl as $mediaKey => $mediaValue) {
 						while (true) {
-							if (!empty($configArr["proxyServer"])) {
-								$mediaFile = $common->httpCurl(array("url"=>$mediaValue,"proxy"=>$configArr["proxyServer"]));
-							} else {
-								$mediaFile = $common->httpCurl(array("url"=>$mediaValue));
-							}
 							$fileName = explode("/", $mediaValue);
 							$fileName = explode("?", $fileName[count($fileName) - 1]);
 							$fileName = explode(".", $fileName[0]);
+							$mediaURL = (strstr($mediaValue, "http://") || strstr($mediaValue, "https://")) ? $mediaValue : (strstr($mediaValue, "//") ? "http:".$mediaValue : "http://".$mediaValue);
 							$file = "";
-							if (count($fileName) == 1 || $fileName[1] == "jpg" || $fileName[1] == "png") {
-								$file = $fileName[0].".png";
-								if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok") {
-									$mediaType = "image";
-									$imageRes = imagecreatefromstring($mediaFile["data"]);
-									imagepng($imageRes, $rootDir."/../data/temp/".$file);
-								}
+							echo($mediaURL."\n");
+							if ($fileName[0] == "undefined") {
+								break;
+							}
+							if (!empty($configArr["proxyServer"])) {
+								$mediaFile = $common->httpCurl(array("url"=>$mediaURL,"proxy"=>$configArr["proxyServer"]));
 							} else {
-								$file = $fileName[0].".".$fileName[1];
-								if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok") {
-									$mediaType = "video";
+								$mediaFile = $common->httpCurl(array("url"=>$mediaURL));
+							}
+							if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok" && $mediaFile["httpCode"] == 200) {
+								if (count($fileName) == 1 || $fileName[1] == "jpg" || $fileName[1] == "png") {	
+								$file = $fileName[0].".png";	
+								if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok") {	
+									$mediaType = "image";	
+									$imageRes = imagecreatefromstring($mediaFile["data"]);	
+									imagepng($imageRes, $rootDir."/../data/temp/".$file);
+									}
+								} else {	
+								$file = $fileName[0].".".$fileName[1];	
+								if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok") {	
+									$mediaType = "video";	
 									file_put_contents($rootDir."/../data/temp/".$file, $mediaFile["data"]);
+									}
 								}
 							}
 							if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok" && file_exists($rootDir."/../data/temp/".$file)) {
@@ -167,7 +174,7 @@ while (true) {
 							$msgSand = $sandMsg->sand(array(
 								"mediaType"=>$mediaType,
 								"title"=>$rssContent->getElementsByTagName("title")->item(0)->nodeValue,
-								"msg"=>$getMsg->getMsgText($description),
+								"msg"=> !empty($value["numberCoded"]) && $value["numberCoded"] == true ? $common->numberCoded($getMsg->getMsgText($description)) : $getMsg->getMsgText($description),
 								"config"=>$configArr,
 								"info"=>$sendValue,
 								"file"=>$mediaFiles,
@@ -188,7 +195,7 @@ while (true) {
 							if ($sendMsgs >= $configArr["MaximumNumberRetries"]) {
 								$common->log("[E] 多次尝试重发失败,将跳过该条消息", $configArr["log"] ? $logDir : "");
 								if ($sendValue["printErrorUrl"] == true) {
-									echo("如有需要,可使用此Url尝试手动重发: ".$msgSand["url"]);
+									echo("如有需要,可使用此Url尝试手动重发: ".$msgSand["url"]."\n");
 								}
 								$sendStu = false;
 							}

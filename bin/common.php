@@ -1,7 +1,7 @@
 <?php
 /*
  * RssQTsend - 公共模块
- * Version 1.0.0
+ * Version 1.0.1
  *
  * Made by Ancgk Studio
  * @ Ski_little <ski@ancgk.com>
@@ -43,6 +43,7 @@ class common
 		curl_setopt($ch, CURLOPT_URL, $data["url"]);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch,  CURLOPT_FOLLOWLOCATION, 1);
 		if (!empty($data["proxy"])) {
 			$address = explode(":", $data["proxy"]);
 			curl_setopt($ch, CURLOPT_PROXY, $address[0]);
@@ -56,7 +57,18 @@ class common
 		if (curl_errno($ch)) {
 			return array("code"=>curl_errno($ch),"message"=>"Request failed");
 		}
+		$httpCode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
 		curl_close($ch);
-		return array("code"=>0,"message"=>"Ok","data"=>$res);
+		return array("code"=>0, "message"=>"Ok", "httpCode"=>$httpCode, "data"=>$res);
+	}
+	
+	public function numberCoded($text)
+	{
+		$uNum = array("1", "2", "3", "4", "5", "6", "7", "8", "9", "0");
+		$vNum = array("１", "２", "３", "４", "５", "６", "７", "８", "９", "０");
+		foreach ($uNum as $key => $value) {
+			$text = str_ireplace($value, $vNum[$key], $text);
+		}
+		return $text;
 	}
 }

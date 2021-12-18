@@ -1,7 +1,7 @@
 <?php
 /*
  * RssQTsend - 接收模块
- * Version 1.0.2
+ * Version 1.0.3
  *
  * Made by Ancgk Studio
  * @ Ski_little <ski@ancgk.com>
@@ -9,25 +9,18 @@
 require_once "common.php";
 class getMsg
 {
-	public function getTweets($server, $user)
+	public function getRss($server, $proxy, $routing, $limit)
 	{
 		$common = new common();
-		$res = $common->httpCurl(array("url"=>"http://".$server."/twitter/user/".$user));
-		if ($res["code"] == 0 && $res["message"] == "Ok" && strpos($res["data"], "</rss>")) {
-			$doc = new DOMDocument("1.0", "utf-8");
-			$doc->preserveWhiteSpace = false;
-			$doc->formatOutput = true;
-			$doc->loadXML($res["data"]);
-			return $doc;
+		$routing = explode("/", $routing);
+		$routing[count($routing) - 1] = urlencode($routing[count($routing) - 1]);
+		$routing = implode("/", $routing);
+		$url = (strstr($server, "http://") || strstr($server, "https://") ? $server : "http://".$server)."/".$routing.($limit != false ? "?limit=".$limit : "");
+		if ($proxy == false) {
+			$res = $common->httpCurl(array("url"=>$url));
 		} else {
-			return false;
+			$res = $common->httpCurl(array("url"=>$url, "proxy"=>$proxy));
 		}
-	}
-	
-	public function getRss($server, $routing, $limit)
-	{
-		$common = new common();
-		$res = $common->httpCurl(array("url"=>"http://".$server."/".$routing."?limit=".$limit));
 		if ($res["code"] == 0 && $res["message"] == "Ok" && strpos($res["data"], "</rss>")) {
 			$doc = new DOMDocument("1.0", "utf-8");
 			$doc->preserveWhiteSpace = false;
@@ -68,6 +61,9 @@ class getMsg
 		$text = implode("<iframe", explode("<br><br><iframe", $text));
 		$text = implode("<video", explode("<br><video", $text));
 		$texted = str_ireplace("<br>", "\n", $text);
+		$texted = str_ireplace("</p>", "\n", $texted);
+		$texted = str_ireplace("<br />", "\n", $texted);
+		$texted = implode("", preg_split("/<p>/", $texted));
 		$texted = implode("", preg_split("/<iframe.+<\/iframe>/", $texted));
 		$texted = implode("", preg_split("/<img.+?>/", $texted));
 		$texted = implode("", preg_split("/<video.+<\/video>/", $texted));

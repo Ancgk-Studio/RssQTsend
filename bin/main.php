@@ -9,10 +9,10 @@
 $rootDir = dirname(__FILE__);
 require_once "common.php";
 require_once "getMsg.php";
-require_once "sandMsg.php";
+require_once "sendMsg.php";
 $common = new common();
 $getMsg = new getMsg();
-$sandMsg = new sandMsg();
+$sendMsg = new sendMsg();
 $configFile = file_get_contents($rootDir."/../config.json");
 $configArr = json_decode($configFile, true);
 $logDir = $rootDir."/../log";
@@ -170,7 +170,7 @@ while (true) {
 						}
 						$sendMsgs = 1;
 						while ($sendStu == true) {
-							$msgSand = $sandMsg->sand(array(
+							$msgSand = $sendMsg->sand(array(
 								"mediaType"=>$mediaType,
 								"title"=>$rssContent->getElementsByTagName("title")->item(0)->nodeValue,
 								"msg"=> !empty($value["numberCoded"]) && $value["numberCoded"] == true ? $common->numberCoded($getMsg->getMsgText($description)) : $getMsg->getMsgText($description),

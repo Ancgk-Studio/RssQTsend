@@ -121,6 +121,7 @@ while (true) {
 							$fileName = explode(".", $fileName[0]);
 							$mediaURL = (strstr($mediaValue, "http://") || strstr($mediaValue, "https://")) ? $mediaValue : (strstr($mediaValue, "//") ? "http:".$mediaValue : "http://".$mediaValue);
 							$file = "";
+							echo($mediaURL."\n");
 							if ($fileName[0] == "undefined") {
 								break;
 							}

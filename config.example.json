@@ -1,0 +1,49 @@
+{
+	"rssServer": "http://127.0.0.1:1200",
+	"proxyServer": "127.0.0.1:1080",
+	"cycle": 60000,
+	"errorResendCycle": 3000,
+	"log": true,
+	"rssProxy": false,
+	"msgCache": 50,
+	"fileCache": 7,
+	"MaximumNumberRetries": 5,
+	"targetServer": [
+		["ski", "127.0.0.1:8081", "skiqsend"]
+	],
+	"subscription": [{
+		"routing": "twitter/user/ski_little",
+		"limitAmount": 20,
+		"send": [{
+			"targetServerClass": "ski",
+			"printErrorUrl": true,
+			"Retweet": true,
+			"ErrorResend": true,
+			"class": "00000000000000000",
+			"channel": "1234567",
+			"token":"A8597E5630FFE8A6531B"
+		}]
+	}, {
+		"routing": "bilibili/user/dynamic/144630821",
+		"limitAmount": 20,
+		"send": [{
+			"targetServerClass": "ski",
+			"printErrorUrl": true,
+			"Retweet": true,
+			"ErrorResend": true,
+			"class": "00000000000000000",
+			"channel": "1234567"
+		}]
+	}, {
+		"routing": "tieba/forum/请问您今天要来点兔子吗",
+		"numberCoded": true,
+		"send": [{
+			"targetServerClass": "ski",
+			"printErrorUrl": true,
+			"Retweet": true,
+			"ErrorResend": true,
+			"class": "00000000000000000",
+			"channel": "1234567"
+		}]
+	}]
+}

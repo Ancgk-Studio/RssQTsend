@@ -8,7 +8,7 @@
  */
 $rootDir = dirname(__FILE__);
 require_once "common.php";
-class sandMsg
+class sendMsg
 {
 	public function sand($data)
 	{

@@ -1,7 +1,7 @@
 <?php
 /*
  * RssQTsend - 接收模块
- * Version 1.0.3
+ * Version 1.0.5
  *
  * Made by Ancgk Studio
  * @ Ski_little <ski@ancgk.com>
@@ -9,17 +9,15 @@
 require_once "common.php";
 class getMsg
 {
-	public function getRss($server, $proxy, $routing, $limit)
+	public function getRss($server, $proxy, $routing, $timeout)
 	{
 		$common = new common();
-		$routing = explode("/", $routing);
-		$routing[count($routing) - 1] = urlencode($routing[count($routing) - 1]);
-		$routing = implode("/", $routing);
-		$url = (strstr($server, "http://") || strstr($server, "https://") ? $server : "http://".$server)."/".$routing.($limit != false ? "?limit=".$limit : "");
+		$routing = $common->urlCode($routing);
+		$url = (strstr($server, "http://") || strstr($server, "https://") ? $server : "http://".$server)."/".$routing;
 		if ($proxy == false) {
-			$res = $common->httpCurl(array("url"=>$url));
+			$res = $common->httpCurl(array("url"=>$url, "timeout"=>$timeout));
 		} else {
-			$res = $common->httpCurl(array("url"=>$url, "proxy"=>$proxy));
+			$res = $common->httpCurl(array("url"=>$url, "proxy"=>$proxy, "timeout"=>$timeout));
 		}
 		if ($res["code"] == 0 && $res["message"] == "Ok" && strpos($res["data"], "</rss>")) {
 			$doc = new DOMDocument("1.0", "utf-8");
@@ -42,7 +40,7 @@ class getMsg
 		$mediaList = explode('"', implode("", $mediaList[0]));
 		$mediaUrlList = array();
 		foreach ($mediaList as $mediaKey => $mediaValue) {
-			if ($mediaKey%2 == 1) {
+			if ($mediaKey%2 == 1 && !empty($mediaValue) && $mediaValue != "undefined") {
 				$mediaUrlList[] = $mediaValue;
 			}
 		}
@@ -51,24 +49,44 @@ class getMsg
 	
 	public function getMsgText($text)
 	{
+		foreach (array("  ", "\t", "\r", "\n ", "\r\n") as $key => $value) {
+			$text = str_ireplace($value, "", $text);
+		}
 		if (strpos($text, "RT") === 0) {
 			$text = "转推了:\n".implode("", explode("RT", $text, 2));
 		} elseif (strpos($text, "Re") === 0) {
 			$text = "回复:\n".implode("", explode("Re", $text, 2));
 		}
-		$text = implode("<img", explode("<br><br><img", $text));
-		$text = implode("<img", explode("<br><img", $text));
-		$text = implode("<iframe", explode("<br><br><iframe", $text));
-		$text = implode("<video", explode("<br><video", $text));
-		$texted = str_ireplace("<br>", "\n", $text);
-		$texted = str_ireplace("</p>", "\n", $texted);
-		$texted = str_ireplace("<br />", "\n", $texted);
-		$texted = implode("", preg_split("/<p>/", $texted));
-		$texted = implode("", preg_split("/<iframe.+<\/iframe>/", $texted));
-		$texted = implode("", preg_split("/<img.+?>/", $texted));
-		$texted = implode("", preg_split("/<video.+<\/video>/", $texted));
-		$texted = implode("", preg_split("/<a.+?>/", $texted));
-		$texted = implode("", preg_split("/<\/a>/", $texted));
-		return $texted;
+		$text = str_ireplace("\n", "<br />", $text);
+		preg_match_all("/<ol.+?<\/ol>/", $text, $loValue);
+		$listMcl = false;
+		foreach ($loValue[0] as $key => $value) {
+			$listNum = 1;
+			$listText = "";
+			preg_match_all("/<li.+?<\/li>/", $value, $listArray);
+			foreach ($listArray[0] as $listKey => $listValue) {
+				$listText .= str_ireplace("</li>", "\n", str_ireplace("<li>", $listNum.".", $listValue));
+				$listNum++;
+			}
+			$listMcl[$key] = $listText;
+		}
+		if ($listMcl !== false) {
+			$listText = "";
+			$listArray = preg_split('/<ol.+?<\/ol>/', $text);
+			foreach ($listArray as $key => $value) {
+				$listText .= $value."\n".(!empty($listMcl[$key]) ? $listMcl[$key] : "");
+			}
+			$text = $listText;
+		}
+		foreach (array(["<img", "<br><br><img"], ["<img", "<br><img"], ["<iframe", "<br><br><iframe"], ["<video", "<br><video"], ["·", "<li>"], ["\n————————————\n", "<hr>"]) as $key => $value) {
+			$text = implode($value[0], explode($value[1], $text));
+		}
+		foreach (array("</p>", "</li>", "</br>", "<br>", "<br />", "</div>") as $key => $value) {
+			$text = str_ireplace($value, "\n", $text);
+		}
+		foreach (array("/<p>/", "/<div.+?>/", "/<iframe.+<\/iframe>/", "/<img.+?>/", "/<video.+<\/video>/", "/<a.+?>/", "/<\/a>/", "/<b>/", "/<\/b>/", "/<span.+?>/", "/<\/span>/", "/<h.+?>/", "/<\/h.+?>/") as $key => $value) {
+			$text = implode("", preg_split($value, $text));
+		}
+		return $text;
 	}
 }

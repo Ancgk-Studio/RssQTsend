@@ -1,7 +1,7 @@
 <?php
 /*
  * RssQTsend - 发送模块
- * Version 1.0.3
+ * Version 1.0.4
  *
  * Made by Ancgk Studio
  * @ Ski_little <ski@ancgk.com>
@@ -75,7 +75,6 @@ class sendMsg
 				foreach ($fileList as $key => $value) {
 					$fileData[] = new CURLFile($value, $data["mediaType"] == "video" ? "video/mp4" : "image/jpeg", explode("/", $value)[count(explode("/", $value)) - 1]);
 				}
-				print_r($fileList);
 				$fileRes = $common->httpCurl(array("url"=>$uploadUrl,"mode"=>"POST","data"=>$fileData));
 				if ($fileRes["code"] == 0 && $fileRes["message"] == "Ok" && !empty($fileRes["data"])) {
 					$resJson = json_decode($fileRes["data"], true);
@@ -111,7 +110,7 @@ class sendMsg
 				$msgCodeText .= "内容包含视频文件，请打开原链接查看\n";
 			}
 		}
-		$msgCodeText .= "----------------------\n原链接：".$data["link"]."\n日期：".date("Y年m月d日 H:i:s", strtotime($data["date"]))."";
+		$msgCodeText .= "----------------------\n原链接：".$data["link"]."\n\n日期：".date("Y年m月d日 H:i:s", strtotime($data["date"]))."";
 		$msgCodeText = urlencode($msgCodeText);
 		$url .= "send_guild_channel_msg?guild_id=".$data["info"]["class"]."&channel_id=".$data["info"]["channel"]."&message=".$msgCodeText;
 		

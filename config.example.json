@@ -1,19 +1,23 @@
 {
-	"rssServer": "http://127.0.0.1:1200",
+	"version": "0.0.4",
+	"log": true,
 	"proxyServer": "127.0.0.1:1080",
 	"cycle": 60000,
-	"errorResendCycle": 3000,
-	"log": true,
-	"rssProxy": false,
+	"errorResendCycle": 30000,
+	"rssProxy": true,
 	"msgCache": 50,
-	"fileCache": 7,
-	"MaximumNumberRetries": 5,
+	"fileCache": 15,
+	"downloadTimeout": 30,
+	"maximumSend": 5,
+	"maximumDownload": 30,
 	"targetServer": [
 		["ski", "127.0.0.1:8081", "skiqsend"]
 	],
+	"filter": ["广告", "购物"],
 	"subscription": [{
+		"rssServer": "http://127.0.0.1:1200",
 		"routing": "twitter/user/ski_little",
-		"limitAmount": 20,
+		"filter": [],
 		"send": [{
 			"targetServerClass": "ski",
 			"printErrorUrl": true,
@@ -24,8 +28,8 @@
 			"token":"A8597E5630FFE8A6531B"
 		}]
 	}, {
+		"rssServer": "http://127.0.0.1:1200",
 		"routing": "bilibili/user/dynamic/144630821",
-		"limitAmount": 20,
 		"send": [{
 			"targetServerClass": "ski",
 			"printErrorUrl": true,
@@ -35,7 +39,8 @@
 			"channel": "1234567"
 		}]
 	}, {
-		"routing": "tieba/forum/请问您今天要来点兔子吗",
+		"rssServer": "http://127.0.0.1:1200",
+		"routing": "tieba/forum/请问您今天要来点兔子吗?filterout=老婆",
 		"numberCoded": true,
 		"send": [{
 			"targetServerClass": "ski",

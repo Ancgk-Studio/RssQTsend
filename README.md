@@ -21,7 +21,7 @@
 * 百度贴吧(tieba/forum/)
 * Lofter标签(lofter/tag/)
 * Pixiv标签(pixiv/search/)
-* 祈祷之国的莉莉艾尔(manhuagui/comic/)
+* 漫画柜(manhuagui/comic/)
 * FANBOX(fanbox/)
 * Youtube(youtube/channel/)
 

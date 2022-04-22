@@ -1,7 +1,7 @@
 <?php
 /*
  * RssQTsend - 主程序
- * Version 1.0.7
+ * Version 1.0.8
  *
  * Made by Ancgk Studio
  * @ Ski_little <ski@ancgk.com>
@@ -16,7 +16,7 @@ $getMsg = new getMsg();
 $sendMsg = new sendMsg();
 $configClass = new config();
 $logDir = $rootDir."/../log";
-$version = "0.0.4";
+$version = "0.0.5";
 if (!file_exists($rootDir."/../config.json")) {
 	$common->log("[E] 配置文件不存在,将自动创建模板,请修改后再运行", $logDir);
 	$configJson = json_encode($configClass->mainArr($version), JSON_UNESCAPED_UNICODE|JSON_PRETTY_PRINT);
@@ -28,6 +28,7 @@ $configArr = json_decode($configFile, true);
 $common->log("[I] RssQTsend 当前版本:v".$version, $configArr["log"] ? $logDir : "");
 if (empty($configArr["version"]) || $configArr["version"] != $version) {
 	$common->log("[E] 配置文件版本错误", $configArr["log"] ? $logDir : "");
+	die();
 }
 if (!empty($configArr["proxyServer"])) {
 	while (true) {
@@ -72,14 +73,18 @@ foreach ($configArr["subscription"] as $key => $value) {
 }
 while (true) {
 	foreach ($configArr["subscription"] as $key => $value) {
-		$routingName = str_ireplace("/", "_", $value["routing"]);
-		$routingName = explode("?", $routingName, 2)[0];
+		if (empty($value["subscriptionName"])) {
+			$routingName = str_ireplace("/", "_", $value["routing"]);
+			$routingName = explode("?", $routingName, 2)[0];
+		} else {
+			$routingName = $value["subscriptionName"];
+		}
 		if (!file_exists($rootDir."/../data/subscription/".$routingName.".xml")) {
 			$common->log("[W] ".$routingName." 的缓存不存在，程序将自动创建", $configArr["log"] ? $logDir : "");
 			$xmlFile = new DOMDocument("1.0", "utf-8");
 			$xmlFile->preserveWhiteSpace = false;
 			$xmlFile->formatOutput = true;
-			$xmlFile->appendChild($xmlFile->createElement('xml'));
+			$xmlFile->appendChild($xmlFile->createElement("xml"));
 			$xmlFile->save($rootDir."/../data/subscription/".$routingName.".xml");
 		} else {
 			$xmlFile = new DOMDocument("1.0", "utf-8");
@@ -141,18 +146,18 @@ while (true) {
 					foreach ($mediaUrl as $mediaKey => $mediaValue) {
 						$downNum = 0;
 						while (true) {
-							$fileName = explode("/", $mediaValue);
+							$fileName = explode("/", $mediaValue[0]);
 							$fileName = explode("?", $fileName[count($fileName) - 1]);
 							$fileName = explode(".", $fileName[0]);
-							$mediaURL = (strstr($mediaValue, "http://") || strstr($mediaValue, "https://")) ? $mediaValue : (strstr($mediaValue, "//") ? "http:".$mediaValue : "http://".$mediaValue);
-							$file = "";
+							$mediaURL = (strstr($mediaValue[0], "http://") || strstr($mediaValue[0], "https://")) ? $mediaValue[0] : (strstr($mediaValue[0], "//") ? "http:".$mediaValue[0] : "http://".$mediaValue[0]);
+							$file =  $fileName[0];
 							if (!empty($configArr["proxyServer"])) {
 								$mediaFile = $common->httpCurl(array("url"=>$mediaURL, "proxy"=>$configArr["proxyServer"], "timeout"=>$configArr["downloadTimeout"]));
 							} else {
 								$mediaFile = $common->httpCurl(array("url"=>$mediaURL, "timeout"=>$configArr["downloadTimeout"]));
 							}
 							if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok" && $mediaFile["httpCode"] == 200) {
-								if (count($fileName) == 1 || $fileName[1] == "jpg" || $fileName[1] == "png" || $fileName[1] == "jpeg") {	
+								if ($mediaValue[1] == "image" || $fileName[1] == "jpg" || $fileName[1] == "png" || $fileName[1] == "jpeg") {
 								$file = $fileName[0].".png";
 									if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok") {
 										$mediaType = "image";
@@ -161,9 +166,9 @@ while (true) {
 										imagedestroy($imageRes);
 									}
 								} else {
-									$file = $fileName[0].".".$fileName[1];	
-								if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok") {	
-									$mediaType = "video";
+									$file = $fileName[0].".".$fileName[1];
+									if ($mediaFile["code"] == 0 && $mediaFile["message"] == "Ok") {
+										$mediaType = "video";
 										file_put_contents($rootDir."/../data/temp/".$file, $mediaFile["data"]);
 									}
 								}
@@ -197,12 +202,13 @@ while (true) {
 						} else {
 							$sendStu = true;
 						}
+						
 						$sendMsgs = 1;
 						while ($sendStu == true) {
 							$msgText = $getMsg->getMsgText($description);
 							if (!empty($configArr["filter"])) {
-								foreach ($configArr["filter"] as $filterKey => $filterValue) {
-									$msgText = str_ireplace($filterValue, "○○○", $msgText);
+								foreach ($configArr["filter"] as $filterKey => $filterValue) {	
+								$msgText = str_ireplace($filterValue, "○○○", $msgText);
 								}
 							}
 							if (!empty($value["filter"])) {
@@ -220,6 +226,7 @@ while (true) {
 								"title"=>$rssContent->getElementsByTagName("title")->item(0)->nodeValue,
 								"msg"=> $msgText,
 								"config"=>$configArr,
+								"subCfg"=>$value,
 								"info"=>$sendValue,
 								"file"=>$mediaFiles,
 								"date"=>$msgValue["date"]->nodeValue,

@@ -1,10 +1,12 @@
 # RssQTsend
-##### 将订阅的RSS消息通过机器人发送到QQ频道
+##### 将订阅的RSS/Feed消息通过机器人发送到QQ频道
 
 ## 支持
 
 #### 支持的rss服务器
 * Rsshub
+* feedrinse
+* fetchrss
 * 部分网站的rss链接 例如[https://www.hanmoto.com](https://www.hanmoto.com)
 
 #### 支持的机器人框架
@@ -24,11 +26,24 @@
 * 漫画柜(manhuagui/comic/)
 * FANBOX(fanbox/)
 * Youtube(youtube/channel/)
+* 新浪微博标签(weibo/keyword/)
+* 新浪微博超话(weibo/super_index/)
+* 
+
+##### feedrinse
+* YouTube
+
+##### fetchrss
+* MyFigureCollection
 
 ##### 其他
 * www.hanmoto.com的rss链接
 * www.sbcr.jp的rss链接
 * manhua.dmzj.com的rss链接
+* www.nicovideo.jp的rss链接
+
+#### 支持解析的Feed内容
+* www.reddit.com
 
 
 ##### 如果有其他需要支持的请在issue中提出

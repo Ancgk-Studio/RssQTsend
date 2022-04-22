@@ -1,5 +1,5 @@
 {
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"log": true,
 	"proxyServer": "127.0.0.1:1080",
 	"cycle": 60000,

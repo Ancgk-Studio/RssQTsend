@@ -1,7 +1,7 @@
 <?php
 /*
  * RssQTsend - 公共模块
- * Version 1.0.1
+ * Version 1.0.2
  *
  * Made by Ancgk Studio
  * @ Ski_little <ski@ancgk.com>
@@ -85,7 +85,7 @@ class common
 		if ($routing[1] == "") {
 			$routing[0] = urldecode($routing[0]);
 			$routing[2] = urldecode($routing[2]);
-		} elseif(strstr($routing[0], ".")) {
+		} elseif (strstr($routing[0], ".")) {
 			$routing[0] = urldecode($routing[0]);
 		}
 		$routing = implode("/", $routing);
@@ -93,7 +93,7 @@ class common
 			$routing .="?";
 			$getDataLink = explode("&", $rawLink[1]);
 			foreach ($getDataLink as $key => $value) {
-				if($key != 0){
+				if ($key != 0) {
 					$routing .= "&";
 				}
 				$getAtt = explode("=", $value);
@@ -105,5 +105,13 @@ class common
 			}
 		}
 		return $routing;
+	}
+	
+	public function html_decode($text)
+	{
+		foreach ([['\'', '&apos;']] as $key => $value) {
+			$text = implode($value[0], explode($value[1], $text));
+		}
+		return $text;
 	}
 }

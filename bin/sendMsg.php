@@ -1,7 +1,7 @@
 <?php
 /*
  * RssQTsend - 发送模块
- * Version 1.0.4
+ * Version 1.0.5
  *
  * Made by Ancgk Studio
  * @ Ski_little <ski@ancgk.com>
@@ -97,7 +97,7 @@ class sendMsg
 	public function cqhttp($data, $url)
 	{
 		$common = new common();
-		$msgCodeText = "【".$data["title"]."】更新了！\n----------------------\n内容：\n".$data["msg"]."\n";
+		$msgCodeText = "【".$data["title"]."】更新了！\n—————————————————\n内容：\n".$data["msg"]."\n";
 		if (count($data["file"]) > 0) {
 			$msgCodeText .= "\n媒体：\n";
 			foreach ($data["file"] as $key => $value) {
@@ -110,10 +110,11 @@ class sendMsg
 				$msgCodeText .= "内容包含视频文件，请打开原链接查看\n";
 			}
 		}
-		$msgCodeText .= "----------------------\n原链接：".$data["link"]."\n\n日期：".date("Y年m月d日 H:i:s", strtotime($data["date"]))."";
+		$date = date("Y年m月d日 H:i:s", strtotime($data["date"]));
+		$msgCodeText .= "—————————————————\n原链接：".$data["link"]."\n\n";
+		$msgCodeText .= "日期：".(!empty($data["subCfg"]["numberCoded"]) && $data["subCfg"]["numberCoded"] == true ? $common->numberCoded($date) : $date);
 		$msgCodeText = urlencode($msgCodeText);
 		$url .= "send_guild_channel_msg?guild_id=".$data["info"]["class"]."&channel_id=".$data["info"]["channel"]."&message=".$msgCodeText;
-		
 		if (!empty($data["info"]["token"])) {
 			$url .= "&access_token=".$data["info"]["token"];
 		}

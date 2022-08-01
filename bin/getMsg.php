@@ -98,12 +98,12 @@ class getMsg
 			foreach ($nodeValue[0] as $srcKey => $srcValue) {
 				if (!preg_match_all('/src=" <a.+?>/', $srcValue)) {
 					preg_match_all('/src=".+?"/', $srcValue, $mediaUrl);
-					$mediaUrl = explode('"', implode("", $mediaUrl[0]));
+					$mediaUrl = str_replace("&amp;","&",explode('"', implode("", $mediaUrl[0])));
 					if ($mediaUrl[1] != "undefined" && !empty($mediaUrl[1])) {
 						$mediaUrlList[] = [$mediaUrl[1], $nodeKey == 0 ? "image" : "video"];
 					}
 					if (preg_match_all('/poster=".+?"/', $srcValue, $mediaUrl)) {
-						$mediaUrl = explode('"', implode("", $mediaUrl[0]));
+						$mediaUrl = str_replace("&amp;","&",explode('"', implode("", $mediaUrl[0])));
 						$mediaUrlList[] = [$mediaUrl[1], "image"];
 					}
 				}

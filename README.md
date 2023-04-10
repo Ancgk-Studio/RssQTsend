@@ -28,6 +28,7 @@
 * Youtube(youtube/channel/)
 * 新浪微博标签(weibo/keyword/)
 * 新浪微博超话(weibo/super_index/)
+* 
 
 ##### feedrinse
 * YouTube
@@ -127,4 +128,4 @@
 2. 在 `php.ini` 中启用 `curl` 与 `gd2` 以及 `mbstring` 扩展
 3. 在程序根目录中使用如下命令行运行
 
-```php.exe .\res\main.php```
+```php.exe .\bin\main.php```

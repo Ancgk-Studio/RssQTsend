@@ -19,7 +19,6 @@ class getMsg
 		} else {
 			$res = $common->httpCurl(array("url"=>$url, "proxy"=>$proxy, "timeout"=>$timeout));
 		}
-		
 		if ($res["code"] == 0 && $res["message"] == "Ok" && strpos($res["data"], "</rss>") !== false) {
 			$doc = new DOMDocument("1.0", "utf-8");
 			$doc->preserveWhiteSpace = false;
@@ -98,12 +97,12 @@ class getMsg
 			foreach ($nodeValue[0] as $srcKey => $srcValue) {
 				if (!preg_match_all('/src=" <a.+?>/', $srcValue)) {
 					preg_match_all('/src=".+?"/', $srcValue, $mediaUrl);
-					$mediaUrl = str_replace("&amp;","&",explode('"', implode("", $mediaUrl[0])));
+					$mediaUrl = explode('"', implode("", $mediaUrl[0]));
 					if ($mediaUrl[1] != "undefined" && !empty($mediaUrl[1])) {
 						$mediaUrlList[] = [$mediaUrl[1], $nodeKey == 0 ? "image" : "video"];
 					}
 					if (preg_match_all('/poster=".+?"/', $srcValue, $mediaUrl)) {
-						$mediaUrl = str_replace("&amp;","&",explode('"', implode("", $mediaUrl[0])));
+						$mediaUrl = explode('"', implode("", $mediaUrl[0]));
 						$mediaUrlList[] = [$mediaUrl[1], "image"];
 					}
 				}

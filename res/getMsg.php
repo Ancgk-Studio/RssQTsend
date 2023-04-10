@@ -19,7 +19,6 @@ class getMsg
 		} else {
 			$res = $common->httpCurl(array("url"=>$url, "proxy"=>$proxy, "timeout"=>$timeout));
 		}
-		
 		if ($res["code"] == 0 && $res["message"] == "Ok" && strpos($res["data"], "</rss>") !== false) {
 			$doc = new DOMDocument("1.0", "utf-8");
 			$doc->preserveWhiteSpace = false;
